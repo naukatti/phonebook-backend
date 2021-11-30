@@ -1,6 +1,8 @@
 const express = require("express");
 const app = express();
 
+app.use(express.json());
+
 let persons = [
   {
     name: "Arto Hellas",
@@ -56,6 +58,15 @@ app.get("/api/persons/:id", (request, response) => {
   } else {
     response.status(404).end();
   }
+});
+
+app.post("/api/persons", (request, response) => {
+  const maxId = persons.length > 0 ? Math.max(...persons.map((n) => n.id)) : 0;
+  const person = request.body;
+  person.id = maxId + 1;
+  persons = persons.concat(person);
+  console.log(person);
+  response.json(person);
 });
 
 app.delete("/api/persons/:id", (request, response) => {

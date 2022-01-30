@@ -1,6 +1,8 @@
 const express = require("express");
 const morgan = require("morgan");
 const cors = require("cors");
+const Person = require("./Models/person");
+require("dotenv").config();
 const app = express();
 
 morgan.token("body", function (req, res) {
@@ -56,19 +58,16 @@ app.get("/info", (req, res) => {
   res.send(`<p>Phone book has info for ${persons.length} people</p> ${Date()}`);
 });
 
-app.get("/api/persons", (req, res) => {
-  res.json(persons);
+app.get("/api/persons", (request, response) => {
+  Person.find({}).then((persons) => {
+    response.json(persons);
+  });
 });
 
 app.get("/api/persons/:id", (request, response) => {
-  const id = Number(request.params.id);
-  const person = persons.find((person) => person.id === id);
-
-  if (person) {
+  Person.findById(request.params.id).then((note) => {
     response.json(person);
-  } else {
-    response.status(404).end();
-  }
+  });
 });
 
 const generateId = () => {
@@ -79,32 +78,19 @@ const generateId = () => {
 app.post("/api/persons", (request, response) => {
   const body = request.body;
 
-  if (!body.name) {
-    return response.status(400).json({
-      error: "Name missing",
-    });
+  if (body.content === undefined) {
+    return response.status(400).json({ error: "content missing" });
   }
 
-  if (!body.number) {
-    return response.status(400).json({
-      error: "Number missing",
-    });
-  }
-  if (persons.find((person) => person.name === body.name)) {
-    return response.status(400).json({
-      error: "Name already added",
-    });
-  }
+  const person = new Person({
+    content: body.content,
+    important: body.important || false,
+    date: new Date(),
+  });
 
-  const person = {
-    name: body.name,
-    number: body.number,
-    id: generateId(),
-  };
-
-  persons = persons.concat(person);
-
-  response.json(person);
+  person.save().then((savedPerson) => {
+    response.json(savedPerson);
+  });
 });
 
 app.delete("/api/persons/:id", (request, response) => {
@@ -114,7 +100,7 @@ app.delete("/api/persons/:id", (request, response) => {
   response.status(204).end();
 });
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });

@@ -1,1 +1,0 @@
-{"version":3,"sources":["webpack://src/notification.css"],"names":[],"mappings":"AAAA,OACE,oBACF,CAEA,SACE,sBACF","file":"main.2181c02a.chunk.css","sourcesContent":[".error {\r\n  background-color: red;\r\n}\r\n\r\n.success {\r\n  background-color: green;\r\n}\r\n"]}
